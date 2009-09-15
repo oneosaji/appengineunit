@@ -17,6 +17,6 @@ public abstract class BaseTestHarnessConfig implements TestHarnessConfig {
   }
 
   public boolean separateNamespacePerTest() {
-    return true;
+    return false;
   }
 }

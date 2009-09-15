@@ -1,10 +1,6 @@
 package org.sortedunderbelly.appengineunit.harness.junit3;
 
-import com.google.appengine.api.NamespaceManager;
-
-import junit.framework.AssertionFailedError;
 import junit.framework.TestFailure;
-import junit.framework.TestListener;
 import junit.framework.TestSuite;
 
 import org.sortedunderbelly.appengineunit.model.Status;
@@ -40,6 +36,8 @@ public class JUnit3TestHarness implements TestHarness {
     junit.framework.TestResult testResult = new junit.framework.TestResult();
     if (config.separateNamespacePerTest()) {
       testResult.addListener(new NewNamespacePerTestListener(test));
+    } else {
+      testResult.addListener(new DatastoreWipingTestListener());
     }
     return testResult;
   }
@@ -68,28 +66,6 @@ public class JUnit3TestHarness implements TestHarness {
 
   private String testFailureToString(TestFailure failure) {
     return failure.exceptionMessage() + "<b>" + failure.trace();
-  }
-
-  private static final class NewNamespacePerTestListener implements TestListener {
-
-    private final Test gaeTest;
-
-    public NewNamespacePerTestListener(Test gaeTest) {
-      this.gaeTest = gaeTest;
-    }
-
-    public void addError(junit.framework.Test test, Throwable t) { }
-
-    public void addFailure(junit.framework.Test test, AssertionFailedError t) { }
-
-    public void endTest(junit.framework.Test test) {
-      NamespaceManager.reset();
-    }
-
-    public void startTest(junit.framework.Test test) {
-      String namespace = String.format("%s_%s", gaeTest.getRun().getId(), test.toString());
-      NamespaceManager.set(namespace);
-    }
   }
 
 }
