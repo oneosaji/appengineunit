@@ -12,6 +12,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * A {@link ApiProxy.Delegate} implementation that keeps track of the kinds of
+ * all {@link Entity Entities} that get written to the datastore.
+ *
  * @author Max Ross <maxr@google.com>
  */
 public class KindTrackingDatastoreDelegate implements ApiProxy.Delegate {
@@ -25,6 +28,7 @@ public class KindTrackingDatastoreDelegate implements ApiProxy.Delegate {
 
   public byte[] makeSyncCall(ApiProxy.Environment environment, String pkg, String method, byte[] bytes)
       throws ApiProxy.ApiProxyException {
+    // Only interested in datastore calls
     if (pkg.equals("datastore_v3")) {
       sniffKinds(method, bytes);
     }
@@ -54,6 +58,9 @@ public class KindTrackingDatastoreDelegate implements ApiProxy.Delegate {
     delegate.log(environment, logRecord);
   }
 
+  /**
+   * Clear out all entities of all kinds that have been written.
+   */
   public void wipeData() {
     for (String kind : kinds) {
       DatastoreService ds = DatastoreServiceFactory.getDatastoreService();

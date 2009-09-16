@@ -18,6 +18,7 @@ import org.sortedunderbelly.appengineunit.spi.TestHarness;
 import org.sortedunderbelly.appengineunit.spi.TestHarnessConfig;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -222,6 +223,7 @@ public class DatastoreTestHarnessDao implements TestHarnessDao {
 
   public boolean createCompletionRecordIfNotAlreadyPresent(long runId) {
     Key key = KeyFactory.createKey(getCompletionNotificationEntityKind(), Long.valueOf(runId).toString());
+    // We'll do a fetch by Key in a txn so we can guarantee that
     Transaction txn = ds.beginTransaction();
     try {
       ds.get(key);
@@ -230,9 +232,17 @@ public class DatastoreTestHarnessDao implements TestHarnessDao {
       return false;
     } catch (EntityNotFoundException enfe) {
       // Entity doesn't already exist so create it.
+      // The Entity doesn't have any data, we just use it as a lock that
+      // prevents more than one completion notification from being sent.
       Entity entity = new Entity(key);
       ds.put(entity);
-      txn.commit();
+      try {
+        txn.commit();
+      } catch (ConcurrentModificationException cme) {
+        // Somebody create the entity during our txn.
+        // That's fine, it just means we return false;
+        return false;
+      }
       return true;
     } finally {
       if (txn.isActive()) {

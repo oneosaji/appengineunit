@@ -26,5 +26,9 @@ public interface TestHarnessDao {
 
   Iterable<Failure> getFailuresForRun(long runId);
 
+  /**
+   * @return {@code true} if the completion record was created, {@code false}
+   * otherwise.
+   */
   boolean createCompletionRecordIfNotAlreadyPresent(long runId);
 }
