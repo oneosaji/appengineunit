@@ -1,11 +1,8 @@
 package org.sortedunderbelly.appengineunit;
 
-import com.google.appengine.api.NamespaceManager;
 import com.google.appengine.api.labs.taskqueue.Queue;
 import com.google.appengine.api.labs.taskqueue.TaskHandle;
 import com.google.appengine.api.labs.taskqueue.TaskOptions;
-import com.google.appengine.api.labs.taskqueue.QueueFactory;
-import static com.google.appengine.api.labs.taskqueue.TaskOptions.Builder.*;
 
 import org.sortedunderbelly.appengineunit.model.Failure;
 import org.sortedunderbelly.appengineunit.model.Run;
@@ -89,23 +86,25 @@ public class TestHarnessManager {
     Test test = dao.newTest(run, testId);
     TestHarness harness = harnessConfig.getTestHarness();
     TestResult result = null;
-    if (harnessConfig.separateNamespacePerTest()) {
-      setEntityPrefix(test);
-    }
+    Throwable thrown = null;
     try {
       result = harness.runTest(harnessConfig, test);
       test.setStatus(result.getStatus());
       logger.fine("Test " + testId + " in run " + runId + " completed with status " + result.getStatus());
     } catch (Throwable t) {
-      test.setStatus(Status.FAILURE);
-      result = new TestResult(
-          runId, testId, Status.FAILURE, -1,
-          Collections.singletonList(
-              "Test execution threw an exception: " + t.getMessage()));
-      logger.fine("Test " + testId + " in run " + runId + " threw an exception: " + t);
-      t.printStackTrace();
+      thrown = t;
     } finally {
-      clearEntityPrefix();
+      if (thrown != null) {
+        // We're doing this handling in the finally block because if we hit a
+        // deadline exception in a catch block we'll get interrupted.  This way
+        // we don't have to worry about a null result.
+        test.setStatus(Status.FAILURE);
+        String msg = "Test " + testId + " in run " + runId + " threw an exception of type "
+                       + thrown.getClass().getName() + ": " + thrown;
+        result = new TestResult(
+            runId, testId, Status.FAILURE, -1, Collections.singletonList(msg));
+        logger.warning(msg);
+      }
       addResultToTest(test, result);
       test.setEndTime(new Date());
       dao.updateTest(test);
@@ -113,22 +112,9 @@ public class TestHarnessManager {
     return result;
   }
 
-  private void setEntityPrefix(Test test) {
-    NamespaceManager.set(test.getRun().getId() + "_" + test.getId());
-  }
-
-  private void clearEntityPrefix() {
-    NamespaceManager.reset();
-  }
-
   private void addResultToTest(Test test, TestResult result) {
     for (String data : result.getFailureData()) {
       test.getFailures().add(new Failure(test.getRun().getId(), data));
     }
-  }
-
-  public void yam() {
-    Queue queue = QueueFactory.getDefaultQueue();
-    queue.add(url("/worker").param("key", "blar"));
   }
 }

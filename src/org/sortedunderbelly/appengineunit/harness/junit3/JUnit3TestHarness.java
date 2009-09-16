@@ -6,14 +6,19 @@ import junit.framework.TestSuite;
 import org.sortedunderbelly.appengineunit.model.Status;
 import org.sortedunderbelly.appengineunit.model.Test;
 import org.sortedunderbelly.appengineunit.model.TestResult;
+import org.sortedunderbelly.appengineunit.spi.IsolationMechanism;
 import org.sortedunderbelly.appengineunit.spi.TestHarness;
 import org.sortedunderbelly.appengineunit.spi.TestHarnessConfig;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
 /**
+ * A JUnit3 {@link TestHarness}.  The id of each {@link Test} is a class name,
+ * so all tests belonging to that class are run.
+ *
  * @author Max Ross <maxr@google.com>
  */
 public class JUnit3TestHarness implements TestHarness {
@@ -21,8 +26,14 @@ public class JUnit3TestHarness implements TestHarness {
   public TestResult runTest(TestHarnessConfig config, Test test) {
     junit.framework.TestResult result = newJUnitTestResult(config, test);
     try {
-      // TODO(maxr): Check for a suite() method.
-      TestSuite testSuite = new TestSuite(Class.forName(test.getId()));
+      Class<?> cls = Class.forName(test.getId());
+      TestSuite testSuite;
+      try {
+        Method m = cls.getMethod("suite");
+        testSuite = (TestSuite) m.invoke(null);
+      } catch (NoSuchMethodException nsme) {
+        testSuite = new TestSuite(cls);
+      }
       testSuite.run(result);
       return translateResult(test.getRun().getId(), test.getId(), testSuite.countTestCases(), result);
     } catch (RuntimeException rte) {
@@ -34,9 +45,9 @@ public class JUnit3TestHarness implements TestHarness {
 
   protected junit.framework.TestResult newJUnitTestResult(TestHarnessConfig config, Test test) {
     junit.framework.TestResult testResult = new junit.framework.TestResult();
-    if (config.separateNamespacePerTest()) {
+    if (config.getIsolationMechanism() == IsolationMechanism.ONE_NAMESPACE_PER_TEST) {
       testResult.addListener(new NewNamespacePerTestListener(test));
-    } else {
+    } else if (config.getIsolationMechanism() == IsolationMechanism.WIPE_STORAGE_AFTER_EACH_TEST){
       testResult.addListener(new DatastoreWipingTestListener());
     }
     return testResult;
@@ -64,8 +75,10 @@ public class JUnit3TestHarness implements TestHarness {
     return new TestResult(runId, testId, status, numTests, failureData);
   }
 
-  private String testFailureToString(TestFailure failure) {
-    return failure.exceptionMessage() + "<b>" + failure.trace();
-  }
+  private static final String FIVE_SPACES = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 
+  private String testFailureToString(TestFailure failure) {
+    return failure.exceptionMessage().replace("\n", "<br>") + "<br>" + FIVE_SPACES
+           + failure.trace().replace("\n", "<br>" + FIVE_SPACES);
+  }
 }

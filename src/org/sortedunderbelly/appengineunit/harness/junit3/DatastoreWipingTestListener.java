@@ -7,6 +7,9 @@ import junit.framework.Test;
 import org.sortedunderbelly.appengineunit.KindTrackingDatastoreDelegate;
 
 /**
+ * A {@link junit.framework.TestListener} that wipes all data written by
+ * the test when the test finishes running.
+ *
  * @author Max Ross <maxr@google.com>
  */
 public class DatastoreWipingTestListener extends BaseTestListener {

@@ -5,6 +5,8 @@ import junit.framework.Test;
 import junit.framework.TestListener;
 
 /**
+ * A base {@link TestListener} with no-op implementations of all methods.
+ *
  * @author Max Ross <maxr@google.com>
  */
 public class BaseTestListener implements TestListener {

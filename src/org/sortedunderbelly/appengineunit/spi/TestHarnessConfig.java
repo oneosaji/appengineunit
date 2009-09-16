@@ -15,5 +15,5 @@ public interface TestHarnessConfig {
 
   String getBaseURL();
 
-  boolean separateNamespacePerTest();
+  IsolationMechanism getIsolationMechanism();
 }

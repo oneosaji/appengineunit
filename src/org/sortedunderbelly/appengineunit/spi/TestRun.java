@@ -6,6 +6,4 @@ package org.sortedunderbelly.appengineunit.spi;
 public interface TestRun {
 
   Iterable<String> getTestIds(long runId);
-
-  Class<? extends TestHarness> getTestHarnessClass();
 }
