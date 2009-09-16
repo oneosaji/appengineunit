@@ -19,9 +19,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * TestHarnessManager is the brains of the test harness.  It handles the high
+ * level operations requested by the servlet and delegates to the {@link TestHarnessDao}
+ * for all persistence operations.
+ *
  * @author Max Ross <maxr@google.com>
  */
 public class TestHarnessManager {
@@ -105,10 +110,10 @@ public class TestHarnessManager {
         // we don't have to worry about a null result.
         test.setStatus(Status.FAILURE);
         String msg = "Test " + testId + " in run " + runId + " threw an exception of type "
-                       + thrown.getClass().getName() + ": " + thrown;
+                       + thrown.getClass().getName();
         result = new TestResult(
-            runId, testId, Status.FAILURE, -1, Collections.singletonList(msg));
-        logger.warning(msg);
+            runId, testId, Status.FAILURE, -1, Collections.singletonList(msg + ": " + thrown));
+        logger.log(Level.SEVERE, msg, thrown);
       }
       addResultToTest(test, result);
       test.setEndTime(new Date());
@@ -117,6 +122,9 @@ public class TestHarnessManager {
       final boolean includeFailureData = false;
       RunStatus runStatus = getRunStatus(runId, includeFailureData);
       if (runStatus.getStatus() == RunStatus.Status.FINISHED) {
+        // We want to return as quickly as possible to avoid deadline errors
+        // so we'll schedule a new task to take care of any completion
+        // notifications that may be necessary
         scheduleCompletionNotification(runId, testId);
       }
     }

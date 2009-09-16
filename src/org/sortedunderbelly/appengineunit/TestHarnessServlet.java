@@ -15,6 +15,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * This is the controller for the test harness.
+ * It exposes a RESTful interface.  Assuming this
+ * servlet is mapped to /testharness/* then the following
+ * functions are supported:
+ * /testharness/new - creates a new test run
+ * /testharness/<runId> - displays status of the test run identified by <runId>
+ * /testharness/<runId>/<testId>/run Runs the test uniquely identified by <runId> and <testId>
+ * /testharness/<runId/<testId>/completionNotification Checks to see if <runId> is complete and,
+ * if so, invokes {@link org.sortedunderbelly.appengineunit.spi.TestRunListener#onCompletion(String, long)}  
+ *
  * @author Max Ross <maxr@google.com>
  */
 public class TestHarnessServlet extends HttpServlet {
