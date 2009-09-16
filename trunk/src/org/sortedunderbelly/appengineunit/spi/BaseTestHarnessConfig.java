@@ -19,4 +19,12 @@ public abstract class BaseTestHarnessConfig implements TestHarnessConfig {
   public IsolationMechanism getIsolationMechanism() {
     return IsolationMechanism.NONE;
   }
+
+  public TestRunListener getTestRunListener() {
+    return new TestRunListener() {
+      public void onCompletion(String statusURL, long runId) {
+        // by default we do nothing
+      }
+    };
+  }
 }

@@ -46,14 +46,14 @@ public class TestHarnessManager {
     return run.getId();
   }
 
-  public RunStatus getRunStatus(long runId) {
+  public RunStatus getRunStatus(long runId, boolean loadFailures) {
     logger.fine("Getting status for run " + runId);
     Run run = dao.findRunById(runId);
 
     int numTestsStarted = dao.getNumTestsStartedForRun(runId);
     int numTestsInProgress = dao.getNumTestsInProgressForRun(runId);
     int numTestsFailedForRun = dao.getNumTestsFailedForRun(runId);
-    Iterable<Failure> failures = numTestsFailedForRun == 0 ?
+    Iterable<Failure> failures = numTestsFailedForRun == 0 || !loadFailures ?
                                  Collections.<Failure>emptyList() : dao.getFailuresForRun(runId);
     logger.fine("Retrieved status for run " + runId);
     return new RunStatus(run, numTestsStarted, numTestsInProgress, numTestsFailedForRun, failures);
@@ -64,15 +64,20 @@ public class TestHarnessManager {
     List<TaskHandle> handles = new ArrayList<TaskHandle>();
     Queue q = harnessConfig.getQueue(runId);
     for (String testId : testRun.getTestIds(runId)) {
-      handles.add(q.add(buildTaskOptions(runId, testId)));
+      handles.add(q.add(buildTaskOptionsForTestRun(runId, testId)));
     }
     logger.fine("Scheduled execution of " + handles.size() + " tests for run " + runId);
     return handles;
   }
 
-  private TaskOptions buildTaskOptions(long runId, String testId) {
+  private TaskOptions buildTaskOptionsForTestRun(long runId, String testId) {
     return TaskOptions.Builder.method(TaskOptions.Method.POST)
         .url(harnessConfig.getBaseURL() + runId + "/" + testId + "/run");
+  }
+
+  private TaskOptions buildTaskOptionsForRunCompletionNotification(long runId, String testId) {
+    return TaskOptions.Builder.method(TaskOptions.Method.POST)
+        .url(harnessConfig.getBaseURL() + runId + "/" + testId + "/completionNotification");
   }
 
   public TestStatus getTestStatus(long runId, String testId) {
@@ -108,13 +113,37 @@ public class TestHarnessManager {
       addResultToTest(test, result);
       test.setEndTime(new Date());
       dao.updateTest(test);
+
+      final boolean includeFailureData = false;
+      RunStatus runStatus = getRunStatus(runId, includeFailureData);
+      if (runStatus.getStatus() == RunStatus.Status.FINISHED) {
+        scheduleCompletionNotification(runId, testId);
+      }
     }
     return result;
+  }
+
+  private void scheduleCompletionNotification(long runId, String testId) {
+    logger.fine("Scheduling completion notification for run " + runId);
+    Queue q = harnessConfig.getQueue(runId);
+    TaskOptions opts = buildTaskOptionsForRunCompletionNotification(runId, testId);
+    q.add(opts);
+    logger.fine("Scheduled completion notification for run " + runId);
   }
 
   private void addResultToTest(Test test, TestResult result) {
     for (String data : result.getFailureData()) {
       test.getFailures().add(new Failure(test.getRun().getId(), data));
+    }
+  }
+
+  public void doCompletionCheck(long runId, String serverURL) {
+    if (dao.createCompletionRecordIfNotAlreadyPresent(runId)) {
+      harnessConfig.getTestRunListener().onCompletion(
+          serverURL + harnessConfig.getBaseURL() + runId, runId);
+    } else {
+      // somebody beat us to the punch so just return without doing any
+      // notification
     }
   }
 }

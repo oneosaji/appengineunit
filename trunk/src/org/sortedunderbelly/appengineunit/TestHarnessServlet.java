@@ -1,8 +1,8 @@
 package org.sortedunderbelly.appengineunit;
 
 import org.sortedunderbelly.appengineunit.model.Failure;
-import org.sortedunderbelly.appengineunit.model.TestResult;
 import org.sortedunderbelly.appengineunit.model.RunStatus;
+import org.sortedunderbelly.appengineunit.model.TestResult;
 import org.sortedunderbelly.appengineunit.model.TestStatus;
 import org.sortedunderbelly.appengineunit.spi.TestHarnessConfig;
 
@@ -84,19 +84,27 @@ public class TestHarnessServlet extends HttpServlet {
     } else {
       long runId = Long.parseLong(components[1]);
       if (components.length == 2) {
-        displayRunStatus(harnessManager.getRunStatus(runId), resp);
+        final boolean includeFailureData = true;
+        displayRunStatus(harnessManager.getRunStatus(runId, includeFailureData), resp);
       } else  {
         String testId = components[2];
         if (components.length == 3) {
           displayTestStatus(harnessManager.getTestStatus(runId, testId), resp);
-        } else if (components[3].equals("run")){
+        } else if (components[3].equals("run")) {
           TestResult result = harnessManager.runTest(runId, testId);
           displayTestResult(result, resp);
+        } else if (components[3].equals("completionNotification")) {
+          harnessManager.doCompletionCheck(
+              runId, extractServerURL(req.getRequestURL().toString(), req.getRequestURI()));
         } else {
           throw new ServletException("Invalid action for test " + testId + " in run " + runId);
         }
       }
     }
+  }
+
+  private String extractServerURL(String requestURL, String requestURI) {
+    return requestURL.substring(0, requestURL.indexOf(requestURI));
   }
 
   private void displayTestResult(TestResult result, HttpServletResponse resp)
