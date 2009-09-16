@@ -16,7 +16,7 @@ public abstract class BaseTestHarnessConfig implements TestHarnessConfig {
     return "/testharness/";
   }
 
-  public boolean separateNamespacePerTest() {
-    return false;
+  public IsolationMechanism getIsolationMechanism() {
+    return IsolationMechanism.NONE;
   }
 }

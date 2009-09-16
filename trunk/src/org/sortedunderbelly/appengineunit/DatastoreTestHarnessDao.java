@@ -7,8 +7,8 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Text;
+import com.google.appengine.api.datastore.Transaction;
 
 import org.sortedunderbelly.appengineunit.model.Failure;
 import org.sortedunderbelly.appengineunit.model.Run;
@@ -18,9 +18,9 @@ import org.sortedunderbelly.appengineunit.spi.TestHarness;
 import org.sortedunderbelly.appengineunit.spi.TestHarnessConfig;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Date;
 
 /**
  * @author Max Ross <maxr@google.com>
@@ -41,6 +41,8 @@ public class DatastoreTestHarnessDao implements TestHarnessDao {
     runEntity.setProperty("testRunnerClass", harness.getClass().getName());
     Date created = new Date();
     runEntity.setProperty("created", created);
+    // -1 is an indication that we don't know the number of tests yet
+    runEntity.setProperty("numTests", -1);
     Key key = ds.put(runEntity);
     return new Run(key.getId(), harness.getClass(), created);
   }
