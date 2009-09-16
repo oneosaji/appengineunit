@@ -1,8 +1,8 @@
 package org.sortedunderbelly.appengineunit;
 
+import org.sortedunderbelly.appengineunit.model.Failure;
 import org.sortedunderbelly.appengineunit.model.Run;
 import org.sortedunderbelly.appengineunit.model.Test;
-import org.sortedunderbelly.appengineunit.model.Failure;
 
 /**
  * @author Max Ross <maxr@google.com>
@@ -25,4 +25,6 @@ public interface TestHarnessDao {
   void updateTest(Test test);
 
   Iterable<Failure> getFailuresForRun(long runId);
+
+  boolean createCompletionRecordIfNotAlreadyPresent(long runId);
 }

@@ -16,4 +16,6 @@ public interface TestHarnessConfig {
   String getBaseURL();
 
   IsolationMechanism getIsolationMechanism();
+
+  TestRunListener getTestRunListener();
 }

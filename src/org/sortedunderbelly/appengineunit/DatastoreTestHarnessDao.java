@@ -215,4 +215,29 @@ public class DatastoreTestHarnessDao implements TestHarnessDao {
   protected String getFailureEntityKind() {
     return "HarnessFailure";
   }
+
+  protected String getCompletionNotificationEntityKind() {
+    return "CompletionNotification";
+  }
+
+  public boolean createCompletionRecordIfNotAlreadyPresent(long runId) {
+    Key key = KeyFactory.createKey(getCompletionNotificationEntityKind(), Long.valueOf(runId).toString());
+    Transaction txn = ds.beginTransaction();
+    try {
+      ds.get(key);
+      // Entity already exists otherwise there would have been an exception so
+      // return false to indicate that nothing needs to be done.
+      return false;
+    } catch (EntityNotFoundException enfe) {
+      // Entity doesn't already exist so create it.
+      Entity entity = new Entity(key);
+      ds.put(entity);
+      txn.commit();
+      return true;
+    } finally {
+      if (txn.isActive()) {
+        txn.rollback();
+      }
+    }
+  }
 }

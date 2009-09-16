@@ -10,6 +10,8 @@ public class RunStatus {
   private final int numTestsFailed;
   private final Iterable<Failure> failures;
 
+  public enum Status { NOT_STARTED, RUNNING, FINISHED }
+
   public RunStatus(Run run, int numTestsStarted, int numTestsInProgress, int numTestsFailed,
                    Iterable<Failure> failures) {
     this.run = run;
@@ -43,13 +45,13 @@ public class RunStatus {
     return numTestsStarted - numTestsInProgress - numTestsFailed;
   }
 
-  public String getStatus() {
+  public Status getStatus() {
     if (numTestsStarted == 0) {
-      return "NOT STARTED";
+      return Status.NOT_STARTED;
     } else if ((numTestsFailed + getNumTestsSucceeded()) != run.getNumTests() ) {
-      return "RUNNING";
+      return Status.RUNNING;
     } else {
-      return "FINISHED";
+      return Status.FINISHED;
     }
   }
 }
