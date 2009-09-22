@@ -3,7 +3,7 @@ package com.sortedunderbelly.appengineunit.spi;
 import com.google.appengine.api.labs.taskqueue.Queue;
 
 /**
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public interface TestHarnessConfig {
 

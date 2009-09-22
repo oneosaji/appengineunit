@@ -1,7 +1,7 @@
 package com.sortedunderbelly.appengineunit.model;
 
 /**
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class RunStatus {
   private final Run run;

@@ -3,7 +3,7 @@ package com.sortedunderbelly.appengineunit.spi;
 /**
  * Mechanisms by which tests are isolated from one another.
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public enum IsolationMechanism {
   NONE,

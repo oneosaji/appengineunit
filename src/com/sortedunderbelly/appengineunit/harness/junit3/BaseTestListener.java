@@ -7,7 +7,7 @@ import junit.framework.TestListener;
 /**
  * A base {@link TestListener} with no-op implementations of all methods.
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class BaseTestListener implements TestListener {
 

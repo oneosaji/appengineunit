@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  * {@link TestRunListener} that sends a message via XMPP when the
  * {@link TestRun} is finished.
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class XMPPTestRunListener implements TestRunListener {
 

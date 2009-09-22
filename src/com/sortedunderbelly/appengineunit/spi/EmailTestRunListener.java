@@ -10,7 +10,7 @@ import java.util.List;
  * {@link TestRunListener} that sends emails when the {@link TestRun} is
  * finished.
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class EmailTestRunListener implements TestRunListener {
 

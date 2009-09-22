@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public final class Test {
 

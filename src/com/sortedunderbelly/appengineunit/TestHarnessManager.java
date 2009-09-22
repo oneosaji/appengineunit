@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  * level operations requested by the servlet and delegates to the {@link TestHarnessDao}
  * for all persistence operations.
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class TestHarnessManager {
 

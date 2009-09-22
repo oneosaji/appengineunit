@@ -3,7 +3,7 @@ package com.sortedunderbelly.appengineunit.model;
 import java.util.Date;
 
 /**
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public final class Run {
 
