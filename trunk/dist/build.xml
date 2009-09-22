@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="appengineunit" default="test">
+
+  <property name="version.major" value="0"/>
+  <property name="version.minor" value="0"/>
+  <property name="version.point" value="1"/>
+  <property name="version.rc" value=""/>
+  <property name="version" value="${version.major}.${version.minor}.${version.point}${version.rc}"/>
+
+  <property name="appengineunit.source.zip" value="appengineunit-${version}-src.zip"/>
+  <property name="appengineunit.jar" value="appengineunit-${version}.jar"/>
+  <property name="zip.prefix" value="appengineunit"/>
+  <property name="dist.target" value="${zip.prefix}-${version}.zip"/>
+  <property name="appengineunit.src.dir" value="../src"/>
+  <property name="appengineunit.test.dir" value="../tests"/>
+  <property name="appengineunit.tmp.dir" value="/tmp/appengineunit"/>
+  <property name="compile.dest.dir" value="${appengineunit.tmp.dir}/classes"/>
+  <property name="compile.tests.dest.dir" value="${appengineunit.tmp.dir}/testclasses"/>
+  <property name="appengineunit.lib.dir" value="../lib"/>
+  <property name="appengineunit.tmpdist.dir" value="/tmp/testdist"/>
+  <property name="appengineunit.sdk.tmpdist.dir" value="${appengineunit.tmpdist.dir}/lib"/>
+  <property name="appengineunit.testresults.dir" value = "${appengineunit.tmpdist.dir}/testresults"/>
+
+  <path id="appengineunit.compile.deps">
+    <pathelement location="${appengineunit.lib.dir}/appengine-api.jar"/>
+    <pathelement location="${appengineunit.lib.dir}/appengine-api-labs.jar"/>
+    <pathelement location="${appengineunit.lib.dir}/junit.jar"/>
+    <pathelement location="${appengineunit.lib.dir}/geronimo-servlet_2.5_spec-1.2.jar"/>
+  </path>
+
+  <path id="appengineunit.test.compile.deps">
+    <pathelement location="${appengineunit.jar}"/>
+    <path refid="appengineunit.compile.deps"/>
+    <pathelement location="${appengineunit.lib.dir}/appengine-local-runtime.jar"/>
+    <pathelement location="${appengineunit.lib.dir}/appengine-api-stubs.jar"/>
+    <pathelement location="${appengineunit.lib.dir}/easymock.jar"/>
+  </path>
+
+  <target name="compile" description="Compile appengine unit">
+    <delete dir="${compile.dest.dir}"/>
+    <mkdir dir="${compile.dest.dir}"/>
+    <javac classpathref="appengineunit.compile.deps" debug="on" source="1.5" target="1.5"
+        srcdir="${appengineunit.src.dir}" destdir="${compile.dest.dir}"/>
+  </target>
+
+  <target name="compile-tests" depends="jar" description="compile the tests for appengineunit">
+    <delete dir="${compile.tests.dest.dir}"/>
+    <mkdir dir="${compile.tests.dest.dir}"/>
+    <!--need to copy over all non-java resources-->
+   <copy todir="${compile.tests.dest.dir}">
+     <fileset dir="${appengineunit.test.dir}">
+       <include name="**/*.xml"/>
+       <include name="**/*.properties"/>
+     </fileset>
+   </copy>
+   <javac classpathref="appengineunit.test.compile.deps" debug="on" source="1.5" target="1.5"
+       srcdir="${appengineunit.test.dir}" destdir="${compile.tests.dest.dir}"/>
+  </target>
+
+  <target name="test" depends="compile-tests" description="Run the tests appengineunit">
+    <delete dir="${appengineunit.testresults.dir}"/>
+    <mkdir dir="${appengineunit.testresults.dir}"/>
+    <junit printsummary="yes" fork="yes" haltonerror="yes" haltonfailure="yes">
+      <classpath>
+        <path refid="appengineunit.test.compile.deps"/>
+        <pathelement location="${compile.tests.dest.dir}"/>
+      </classpath>
+      <formatter type="plain"/>
+      <batchtest fork="yes" todir="${appengineunit.testresults.dir}">
+        <fileset dir="${appengineunit.test.dir}">
+          <include name="**/*Test.java"/>
+          <exclude name="**/AllTests.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="jar" depends="compile" description="Jar the compiled appengineunit classes and resources">
+    <!-- need to copy over all non-java resources -->
+    <copy todir="${compile.dest.dir}">
+      <fileset dir="${appengineunit.src.dir}">
+        <include name="**/*.xml"/>
+        <include name="**/*.properties"/>
+        <include name="**/*.MF"/>
+        <include name="META-INF/services/**"/>
+      </fileset>
+    </copy>
+    <jar destfile="${appengineunit.jar}" basedir="${compile.dest.dir}"/>
+  </target>
+
+  <target name="dist" depends="compile, jar" description="Build the appengineunit distribution">
+    <zip destfile="${appengineunit.source.zip}">
+      <fileset dir="${appengineunit.src.dir}" includes="**/*"/>
+    </zip>
+    <zip destfile="${dist.target}">
+      <zipfileset file="${appengineunit.jar}"/>
+      <zipfileset file="${appengineunit.source.zip}"/>
+      <zipfileset dir=".">
+        <include name="README"/>
+        <include name="RELEASE_NOTES"/>
+      </zipfileset>
+    </zip>
+    <delete file="${appengineunit.jar}"/>
+    <delete file="${appengineunit.source.zip}"/>
+  </target>
+
+  <!-- Default value.  Properties can't change once set so if user overrides on the command
+       line this gets ignored.  This is what we want. -->
+  <property name="appengine.sdk.path" value="../../appengine-java-sdk"/>
+  <property name="appengine.sdk.lib.path" value="${appengine.sdk.path}/lib"/>
+
+  <target name="updatesdkjars"
+          description="Pull in new sdk jars.  Assumes sdk is located at ../../appengine-java-sdk.  Pass -Dappengine.sdk.path=/path/to/sdk to override.">
+      <available file="${appengine.sdk.lib.path}" property="libDirExists"/>
+      <fail unless="libDirExists" message="${appengine.sdk.lib.path} does not exist.  Pass -Dappengine.sdk.path=/path/to/sdk to override the default sdk location."/>
+      <copy  todir="../lib" verbose="true" overwrite="true">
+        <fileset dir="${appengine.sdk.lib.path}" includes="appengine-tools-api.jar"/>
+        <fileset dir="${appengine.sdk.lib.path}/impl" includes = "*.jar"/>
+        <fileset dir="${appengine.sdk.lib.path}/shared" includes = "appengine*.jar"/>
+      </copy>
+  </target>
+</project>
