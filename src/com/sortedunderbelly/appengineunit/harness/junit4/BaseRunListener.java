@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sortedunderbelly.appengineunit.harness.junit3;
+package com.sortedunderbelly.appengineunit.harness.junit4;
 
-import com.sortedunderbelly.appengineunit.harness.junitx.JUnitTestRun;
-
-import junit.framework.TestSuite;
+import org.junit.runner.Description;
+import org.junit.runner.Result;
+import org.junit.runner.notification.RunListener;
 
 /**
- * JUnit 3 specialization of a {@link JUnitTestRun}.
+ * A base {@link RunListener} with no-op implementations of all methods.
  *
  * @author Max Ross <max.ross@gmail.com>
  */
-public class JUnit3TestRun extends JUnitTestRun {
+public class BaseRunListener extends RunListener {
 
-  public JUnit3TestRun(TestSuite testSuite) {
-    super(testSuite);
+  @Override
+  public void testRunStarted(Description description) {
   }
+
+  @Override
+  public void testRunFinished(Result result) {
+  }
+
 }

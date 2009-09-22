@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sortedunderbelly.appengineunit.harness.junit3;
+package com.sortedunderbelly.appengineunit.harness.junit4;
 
-import com.sortedunderbelly.appengineunit.harness.junitx.JUnitTestRun;
-
-import junit.framework.TestSuite;
+import com.sortedunderbelly.appengineunit.spi.BaseTestHarnessConfig;
+import com.sortedunderbelly.appengineunit.spi.TestHarness;
 
 /**
- * JUnit 3 specialization of a {@link JUnitTestRun}.
+ * Base config for JUnit 4.
  *
  * @author Max Ross <max.ross@gmail.com>
  */
-public class JUnit3TestRun extends JUnitTestRun {
+public abstract class JUnit4Config extends BaseTestHarnessConfig {
 
-  public JUnit3TestRun(TestSuite testSuite) {
-    super(testSuite);
+  public TestHarness getTestHarness() {
+    return new JUnit4TestHarness();
   }
 }
