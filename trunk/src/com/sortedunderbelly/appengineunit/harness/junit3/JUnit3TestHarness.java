@@ -19,7 +19,7 @@ import java.util.List;
  * A JUnit3 {@link TestHarness}.  The id of each {@link Test} is a class name,
  * so all tests belonging to that class are run.
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class JUnit3TestHarness implements TestHarness {
 

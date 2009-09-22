@@ -3,7 +3,7 @@ package com.sortedunderbelly.appengineunit;
 import junit.framework.TestCase;
 
 /**
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class TestHarnessServletTest extends TestCase {
 

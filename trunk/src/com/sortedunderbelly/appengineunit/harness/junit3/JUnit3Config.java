@@ -6,7 +6,7 @@ import com.sortedunderbelly.appengineunit.spi.TestHarness;
 /**
  * Base config for JUnit 3.
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public abstract class JUnit3Config extends BaseTestHarnessConfig {
 

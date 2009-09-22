@@ -10,7 +10,7 @@ import java.util.logging.Logger;
  * method on each contained listener will be called even if the event methods
  * on other contained listeners throw exceptions.
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class CompoundTestRunListener implements TestRunListener {
 

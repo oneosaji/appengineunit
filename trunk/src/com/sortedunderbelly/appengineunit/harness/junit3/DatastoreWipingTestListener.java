@@ -10,7 +10,7 @@ import junit.framework.Test;
  * A {@link junit.framework.TestListener} that wipes all data written by
  * the test when the test finishes running.
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class DatastoreWipingTestListener extends BaseTestListener {
 

@@ -3,7 +3,7 @@ package com.sortedunderbelly.appengineunit.model;
 import com.google.appengine.api.datastore.Key;
 
 /**
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class Failure {
 

@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
  * /testharness/<runId/<testId>/completionNotification Checks to see if <runId> is complete and,
  * if so, invokes {@link com.sortedunderbelly.appengineunit.spi.TestRunListener#onCompletion(String, long)}
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class TestHarnessServlet extends HttpServlet {
 

@@ -15,7 +15,7 @@ import java.util.Set;
  * A {@link ApiProxy.Delegate} implementation that keeps track of the kinds of
  * all {@link Entity Entities} that get written to the datastore.
  *
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class KindTrackingDatastoreDelegate implements ApiProxy.Delegate {
 

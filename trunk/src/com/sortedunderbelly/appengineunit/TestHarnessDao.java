@@ -5,7 +5,7 @@ import com.sortedunderbelly.appengineunit.model.Run;
 import com.sortedunderbelly.appengineunit.model.Test;
 
 /**
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public interface TestHarnessDao {
   Run newRun();

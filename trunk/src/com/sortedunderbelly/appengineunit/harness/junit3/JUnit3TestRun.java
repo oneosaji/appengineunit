@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 public class JUnit3TestRun implements TestRun {
 

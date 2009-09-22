@@ -5,7 +5,7 @@ import com.google.appengine.api.NamespaceManager;
 import com.sortedunderbelly.appengineunit.model.Test;
 
 /**
- * @author Max Ross <maxr@google.com>
+ * @author Max Ross <max.ross@gmail.com>
  */
 final class NewNamespacePerTestListener extends BaseTestListener {
 
