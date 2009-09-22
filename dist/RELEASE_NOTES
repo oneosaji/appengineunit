@@ -1,7 +1,7 @@
 Release Notes for the App Engine Unit.
 
 
-VERSION 0.0.1 Final
+VERSION 0.0.5 Final
 - Support for running JUnit3 tests
 - Email notification of complete test runs.
 - XMPP notification of complete test runs.
