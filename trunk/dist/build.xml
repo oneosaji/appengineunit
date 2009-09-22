@@ -93,9 +93,11 @@
       <fileset dir="${appengineunit.src.dir}" includes="**/*"/>
     </zip>
     <zip destfile="${dist.target}">
-      <zipfileset file="${appengineunit.jar}"/>
-      <zipfileset file="${appengineunit.source.zip}"/>
-      <zipfileset dir=".">
+      <zipfileset prefix="appengineunit" file="${appengineunit.jar}"/>
+      <zipfileset prefix="appengineunit" file="${appengineunit.source.zip}"/>
+      <zipfileset prefix="appengineunit" dir=".">
+        <include name="LICENSE"/>
+        <include name="NOTICE"/>
         <include name="README"/>
         <include name="RELEASE_NOTES"/>
       </zipfileset>
