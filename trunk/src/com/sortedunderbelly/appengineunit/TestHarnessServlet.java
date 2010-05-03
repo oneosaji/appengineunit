@@ -17,11 +17,15 @@ package com.sortedunderbelly.appengineunit;
 
 import com.sortedunderbelly.appengineunit.model.Failure;
 import com.sortedunderbelly.appengineunit.model.RunStatus;
+import com.sortedunderbelly.appengineunit.model.Test;
 import com.sortedunderbelly.appengineunit.model.TestResult;
 import com.sortedunderbelly.appengineunit.model.TestStatus;
 import com.sortedunderbelly.appengineunit.spi.TestHarnessConfig;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -122,10 +126,19 @@ public class TestHarnessServlet extends HttpServlet {
           harnessManager.doCompletionCheck(
               runId, extractServerURL(req.getRequestURL().toString(), req.getRequestURI()));
         } else {
-          throw new ServletException("Invalid action for test " + testId + " in run " + runId);
+          // it's not a run action or a test action so assume it's a request
+          // for failure data
+          Failure failure = harnessManager.getFailure(
+              runId, URLDecoder.decode(testId, "UTF-8"), URLDecoder.decode(components[3], "UTF-8"));
+          displayFailureData(failure, resp);
         }
       }
     }
+  }
+
+  private void displayFailureData(Failure failure, HttpServletResponse resp) throws IOException {
+    resp.getWriter().println("Details For Failure " + failure.getId());
+    resp.getWriter().println("<br>" + failure.getFailureMsg());
   }
 
   static String extractServerURL(String requestURL, String requestURI) {
@@ -151,19 +164,42 @@ public class TestHarnessServlet extends HttpServlet {
     resp.getWriter().println("<br>Num Tests: " + runStatus.getRun().getNumTests());
     resp.getWriter().println("<br>Num Started: " + runStatus.getNumTestsStarted());
     resp.getWriter().println("<br>Num In Progress: " + runStatus.getNumTestsInProgress());
+    resp.getWriter().println("<br>In Progress: ");
+    for (Test t : runStatus.getTestsInProgress()) {
+      resp.getWriter().println("<br>&nbsp;&nbsp;&nbsp;" + t.getId());
+    }
     resp.getWriter().println("<br>Num Succeeded: " + runStatus.getNumTestsSucceeded());
     resp.getWriter().println("<br>Num Failed: " + runStatus.getNumTestsFailed());
 
     boolean first = true;
-    for (Failure f : runStatus.getFailures()) {
+    for (Test t : runStatus.getFailures()) {
       if (first) {
         first = false;
         resp.getWriter().println("<br>");
         resp.getWriter().println("<br>Failures");
       }
-      resp.getWriter().println("<br>TestId: " + f.getKey().getParent().toString());
-      resp.getWriter().println("<br>FailureMsg: " + f.getFailureMsg());
+      resp.getWriter().println("<br>TestId: " +
+                               getTestStatusLink(runStatus.getRun().getId(), t.getId()));
+      for (Failure f : t.getFailures()) {
+        resp.getWriter().println("<br>&nbsp;&nbsp;&nbsp;Failure: " +
+                                 getFailureDataLink(runStatus.getRun().getId(), t.getId(), f.getId()));
+      }
       resp.getWriter().println("<br>");
     }
+  }
+
+  private String getTestStatusLink(long runId, String testId) throws UnsupportedEncodingException {
+    return String.format("<a href='%s%d/%s'>%s</a>", harnessBaseURL, runId, 
+                         makeSafe(testId), testId);
+  }
+
+  private String getFailureDataLink(long runId, String testId, String failureId)
+      throws UnsupportedEncodingException {
+    return String.format("<a href='%s%d/%s/%s'>%s</a>", harnessBaseURL, runId, makeSafe(testId),
+                         makeSafe(failureId), failureId);
+  }
+
+  private String makeSafe(String str) throws UnsupportedEncodingException {
+    return URLEncoder.encode(str, "UTF-8");
   }
 }

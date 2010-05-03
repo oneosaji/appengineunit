@@ -15,18 +15,29 @@
  */
 package com.sortedunderbelly.appengineunit.harness.junit4;
 
-import com.sortedunderbelly.appengineunit.harness.junitx.JUnitTestRun;
+import com.sortedunderbelly.appengineunit.spi.TestRun;
 
-import junit.framework.TestSuite;
+import org.junit.runner.Description;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * JUnit 4 specialization of a {@link JUnitTestRun}.
- *
  * @author Max Ross <max.ross@gmail.com>
  */
-public class JUnit4TestRun extends JUnitTestRun {
+public class JUnit4TestRun implements TestRun {
 
-  public JUnit4TestRun(TestSuite testSuite) {
-    super(testSuite);
+  private final Description desc;
+
+  public JUnit4TestRun(Description desc) {
+    this.desc = desc;
+  }
+
+  public Iterable<String> getTestIds(long runId) {
+    List<String> classes = new ArrayList<String>();
+    for (Description sub : desc.getChildren()) {
+      classes.add(sub.getTestClass().getName());
+    }
+    return classes;
   }
 }

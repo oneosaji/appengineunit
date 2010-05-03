@@ -27,9 +27,9 @@ public final class TestResult {
   private final String testId;
   private final Status status;
   private final int numTests;
-  private final List<String> failureData = new ArrayList<String>();
+  private final List<FailureData> failureData = new ArrayList<FailureData>();
 
-  public TestResult(long runId, String testId, Status status, int numTests, List<String> failureData) {
+  public TestResult(long runId, String testId, Status status, int numTests, List<FailureData> failureData) {
     this.runId = runId;
     this.testId = testId;
     this.status = status;
@@ -41,7 +41,7 @@ public final class TestResult {
     return status;
   }
 
-  public List<String> getFailureData() {
+  public List<FailureData> getFailureData() {
     return failureData;
   }
 

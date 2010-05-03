@@ -15,6 +15,7 @@
  */
 package com.sortedunderbelly.appengineunit.harness.junit4;
 
+import com.sortedunderbelly.appengineunit.model.FailureData;
 import com.sortedunderbelly.appengineunit.model.Status;
 import com.sortedunderbelly.appengineunit.model.Test;
 import com.sortedunderbelly.appengineunit.model.TestResult;
@@ -30,8 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A JUnit4 {@link TestHarness}. The id of each {@link Test} is a class name, so all tests belonging
- * to that class are run.
+ * A JUnit4 {@link TestHarness}. The id of each {@link Test} is a class name,
+ * so all tests belonging to that class are run.
  *
  * @author Max Ross <max.ross@gmail.com>
  */
@@ -63,13 +64,13 @@ public class JUnit4TestHarness implements TestHarness {
   private TestResult translateResult(long runId, String testId, int numTests,
                                      Result result) {
     Status status = Status.SUCCESS;
-    List<String> failureData = new ArrayList<String>();
+    List<FailureData> failureData = new ArrayList<FailureData>();
     // JUnit 4: doesn't distinguish between 'failure' and 'error'
     if (result.getFailureCount() != 0) {
       status = Status.FAILURE;
       List<Failure> failureList = result.getFailures();
       for (Failure fail : failureList) {
-        failureData.add(testFailureToString(fail));
+        failureData.add(new FailureData(fail.toString(), testFailureToString(fail)));
       }
     }
     return new TestResult(runId, testId, status, numTests, failureData);

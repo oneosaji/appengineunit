@@ -21,10 +21,11 @@ import com.sortedunderbelly.appengineunit.KindTrackingDatastoreDelegate;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
+import org.junit.runner.notification.RunListener;
 
 /**
- * A {@link org.junit.runner.notification.RunListener} that wipes all data
- * written by the test when the test finishes running.
+ * A {@link RunListener} that wipes all data written by the test when the test
+ * finishes running.
  *
  * @author Max Ross <max.ross@gmail.com>
  */
