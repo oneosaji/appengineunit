@@ -23,17 +23,19 @@ public class RunStatus {
   private final int numTestsStarted;
   private final int numTestsInProgress;
   private final int numTestsFailed;
-  private final Iterable<Failure> failures;
+  private final Iterable<Test> failures;
+  private final Iterable<Test> testsInProgress;
 
   public enum Status { NOT_STARTED, RUNNING, FINISHED }
 
   public RunStatus(Run run, int numTestsStarted, int numTestsInProgress, int numTestsFailed,
-                   Iterable<Failure> failures) {
+                   Iterable<Test> failures, Iterable<Test> testsInProgress) {
     this.run = run;
     this.numTestsStarted = numTestsStarted;
     this.numTestsInProgress = numTestsInProgress;
     this.numTestsFailed = numTestsFailed;
     this.failures = failures;
+    this.testsInProgress = testsInProgress;
   }
 
   public Run getRun() {
@@ -52,7 +54,7 @@ public class RunStatus {
     return numTestsFailed;
   }
 
-  public Iterable<Failure> getFailures() {
+  public Iterable<Test> getFailures() {
     return failures;
   }
 
@@ -69,4 +71,9 @@ public class RunStatus {
       return Status.FINISHED;
     }
   }
+
+  public Iterable<Test> getTestsInProgress() {
+    return testsInProgress;
+  }
+
 }

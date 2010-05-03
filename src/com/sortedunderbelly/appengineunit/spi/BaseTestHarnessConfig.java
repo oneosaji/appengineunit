@@ -32,7 +32,7 @@ public abstract class BaseTestHarnessConfig implements TestHarnessConfig {
   }
 
   public IsolationMechanism getIsolationMechanism() {
-    return IsolationMechanism.NONE;
+    return IsolationMechanism.ONE_NAMESPACE_PER_TEST;
   }
 
   public TestRunListener getTestRunListener() {

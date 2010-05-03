@@ -15,33 +15,29 @@
  */
 package com.sortedunderbelly.appengineunit.model;
 
-import com.google.appengine.api.datastore.Key;
-
 /**
  * @author Max Ross <max.ross@gmail.com>
  */
 public class Failure {
 
-  private Key key;
+  private String id;
+  private String testId;
   private final long runId;
   private final String failureMsg;
 
-  public Failure(long runId, String failureMsg) {
-    this(null, runId, failureMsg);
-  }
-
-  public Failure(Key key, long runId, String failureMsg) {
-    this.key = key;
+  public Failure(String id, String testId, long runId, String failureMsg) {
+    this.id = id;
+    this.testId = testId;
     this.runId = runId;
     this.failureMsg = failureMsg;
   }
 
-  public Key getKey() {
-    return key;
+  public String getId() {
+    return id;
   }
 
-  public void setKey(Key key) {
-    this.key = key;
+  public String getTestId() {
+    return testId;
   }
 
   public String getFailureMsg() {

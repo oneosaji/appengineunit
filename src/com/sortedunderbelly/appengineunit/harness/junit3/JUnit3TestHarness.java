@@ -15,6 +15,7 @@
  */
 package com.sortedunderbelly.appengineunit.harness.junit3;
 
+import com.sortedunderbelly.appengineunit.model.FailureData;
 import com.sortedunderbelly.appengineunit.model.Status;
 import com.sortedunderbelly.appengineunit.model.Test;
 import com.sortedunderbelly.appengineunit.model.TestResult;
@@ -70,13 +71,14 @@ public class JUnit3TestHarness implements TestHarness {
 
   private TestResult translateResult(long runId, String testId, int numTests, junit.framework.TestResult result) {
     Status status = Status.SUCCESS;
-    List<String> failureData = new ArrayList<String>();
+    List<FailureData> failureData = new ArrayList<FailureData>();
     if (result.errorCount() != 0) {
       status = Status.FAILURE;
       @SuppressWarnings("unchecked")
       Enumeration<TestFailure> errorEnum = result.errors();
       while (errorEnum.hasMoreElements()) {
-        failureData.add(testFailureToString(errorEnum.nextElement()));
+        TestFailure tf = errorEnum.nextElement();
+        failureData.add(new FailureData(tf.failedTest().toString(), testFailureToString(tf)));
       }
     }
     if (result.failureCount() != 0) {
@@ -84,7 +86,8 @@ public class JUnit3TestHarness implements TestHarness {
       @SuppressWarnings("unchecked")
       Enumeration<TestFailure> failureEnum = result.failures();
       while (failureEnum.hasMoreElements()) {
-        failureData.add(testFailureToString(failureEnum.nextElement()));
+        TestFailure tf = failureEnum.nextElement();
+        failureData.add(new FailureData(tf.failedTest().toString(), testFailureToString(tf)));
       }
     }
     return new TestResult(runId, testId, status, numTests, failureData);
@@ -93,7 +96,14 @@ public class JUnit3TestHarness implements TestHarness {
   private static final String FIVE_SPACES = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 
   private String testFailureToString(TestFailure failure) {
-    return failure.exceptionMessage().replace("\n", "<br>") + "<br>" + FIVE_SPACES
-           + failure.trace().replace("\n", "<br>" + FIVE_SPACES);
+    // string representation of the failure includes the test name, the test
+    // case name, and the error msg
+    String exceptionMessage = failure.toString();
+    String trace = failure.trace();
+    if (trace == null) {
+      trace = "";
+    }
+    return exceptionMessage.replace("\n", "<br>") + "<br>" + FIVE_SPACES
+           + trace.replace("\n", "<br>" + FIVE_SPACES);
   }
 }

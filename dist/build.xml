@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="appengineunit" default="test">
 
-  <property name="version.major" value="0"/>
+  <property name="version.major" value="1"/>
   <property name="version.minor" value="0"/>
-  <property name="version.point" value="6"/>
+  <property name="version.point" value="0"/>
   <property name="version.rc" value=".final"/>
   <property name="version" value="${version.major}.${version.minor}.${version.point}${version.rc}"/>
 
@@ -24,6 +24,7 @@
   <path id="appengineunit.compile.deps">
     <pathelement location="${appengineunit.lib.dir}/appengine-api.jar"/>
     <pathelement location="${appengineunit.lib.dir}/appengine-api-labs.jar"/>
+    <pathelement location="${appengineunit.lib.dir}/appengine-testing.jar"/>
     <pathelement location="${appengineunit.lib.dir}/junit.jar"/>
     <pathelement location="${appengineunit.lib.dir}/junit-4.7.jar"/>
     <pathelement location="${appengineunit.lib.dir}/geronimo-servlet_2.5_spec-1.2.jar"/>
@@ -120,6 +121,7 @@
         <fileset dir="${appengine.sdk.lib.path}" includes="appengine-tools-api.jar"/>
         <fileset dir="${appengine.sdk.lib.path}/impl" includes = "*.jar"/>
         <fileset dir="${appengine.sdk.lib.path}/shared" includes = "appengine*.jar"/>
+        <fileset dir="${appengine.sdk.lib.path}/testing" includes = "*.jar"/>
       </copy>
   </target>
 </project>

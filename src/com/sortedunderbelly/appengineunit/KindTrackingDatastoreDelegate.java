@@ -25,6 +25,7 @@ import com.google.storage.onestore.v3.OnestoreEntity;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * A {@link ApiProxy.Delegate} implementation that keeps track of the kinds of
@@ -48,6 +49,14 @@ public class KindTrackingDatastoreDelegate implements ApiProxy.Delegate {
       sniffKinds(method, bytes);
     }
     return delegate.makeSyncCall(environment, pkg, method, bytes);
+  }
+
+  public Future makeAsyncCall(ApiProxy.Environment environment, String pkg, String method, byte[] bytes,
+                              ApiProxy.ApiConfig apiConfig) {
+    if (pkg.equals("datastore_v3")) {
+      sniffKinds(method, bytes);
+    }
+    return delegate.makeAsyncCall(environment, pkg, method, bytes, apiConfig);
   }
 
   private void sniffKinds(OnestoreEntity.Reference ref) {

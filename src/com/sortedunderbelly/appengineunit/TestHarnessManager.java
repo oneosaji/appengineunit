@@ -20,6 +20,7 @@ import com.google.appengine.api.labs.taskqueue.TaskHandle;
 import com.google.appengine.api.labs.taskqueue.TaskOptions;
 
 import com.sortedunderbelly.appengineunit.model.Failure;
+import com.sortedunderbelly.appengineunit.model.FailureData;
 import com.sortedunderbelly.appengineunit.model.Run;
 import com.sortedunderbelly.appengineunit.model.RunStatus;
 import com.sortedunderbelly.appengineunit.model.Status;
@@ -73,10 +74,11 @@ public class TestHarnessManager {
     int numTestsStarted = dao.getNumTestsStartedForRun(runId);
     int numTestsInProgress = dao.getNumTestsInProgressForRun(runId);
     int numTestsFailedForRun = dao.getNumTestsFailedForRun(runId);
-    Iterable<Failure> failures = numTestsFailedForRun == 0 || !loadFailures ?
-                                 Collections.<Failure>emptyList() : dao.getFailuresForRun(runId);
+    Iterable<Test> failures = numTestsFailedForRun == 0 || !loadFailures ?
+                                 Collections.<Test>emptyList() : dao.getFailedTestsForRun(runId);
+    Iterable<Test> inProgress = dao.getTestsInProgressForRun(runId);
     logger.fine("Retrieved status for run " + runId);
-    return new RunStatus(run, numTestsStarted, numTestsInProgress, numTestsFailedForRun, failures);
+    return new RunStatus(run, numTestsStarted, numTestsInProgress, numTestsFailedForRun, failures, inProgress);
   }
 
   private List<TaskHandle> scheduleExecution(long runId, TestRun testRun) {
@@ -84,6 +86,9 @@ public class TestHarnessManager {
     List<TaskHandle> handles = new ArrayList<TaskHandle>();
     Queue q = harnessConfig.getQueue(runId);
     for (String testId : testRun.getTestIds(runId)) {
+      // TODO(maxr): make sure we don't schedule the same test more than
+      // once, otherwise we'll end up with fewer tests than tasks and the
+      // run will never register as complete
       handles.add(q.add(buildTaskOptionsForTestRun(runId, testId)));
     }
     logger.fine("Scheduled execution of " + handles.size() + " tests for run " + runId);
@@ -105,6 +110,10 @@ public class TestHarnessManager {
     return new TestStatus(runId, testId);
   }
 
+  public Failure getFailure(long runId, String testId, String failureId) {
+    return dao.getFailure(runId, testId, failureId);
+  }
+
   public TestResult runTest(long runId, String testId) {
     logger.fine("Running test " + testId + " in run " + runId);
     Run run = dao.findRunById(runId);
@@ -119,16 +128,26 @@ public class TestHarnessManager {
     } catch (Throwable t) {
       thrown = t;
     } finally {
-      if (thrown != null) {
+      if (result == null) {
         // We're doing this handling in the finally block because if we hit a
         // deadline exception in a catch block we'll get interrupted.  This way
         // we don't have to worry about a null result.
         test.setStatus(Status.FAILURE);
-        String msg = "Test " + testId + " in run " + runId + " threw an exception of type "
-                       + thrown.getClass().getName();
-        result = new TestResult(
-            runId, testId, Status.FAILURE, -1, Collections.singletonList(msg + ": " + thrown));
-        logger.log(Level.SEVERE, msg, thrown);
+        String msg;
+        if (thrown != null) {
+          msg = "Test " + testId + " in run " + runId + " threw an exception of type "
+                         + thrown.getClass().getName();
+          result = new TestResult(
+              runId, testId, Status.FAILURE, -1,
+              Collections.singletonList(new FailureData("Harness Error", msg + ": " + thrown)));
+          logger.log(Level.SEVERE, msg, thrown);
+        } else {
+          msg = "Test " + testId + " in run " + runId + " has an error without an exception.";
+          result = new TestResult(
+              runId, testId, Status.FAILURE, -1,
+              Collections.singletonList(new FailureData("Harness Error", msg)));
+          logger.log(Level.SEVERE, msg);
+        }
       }
       addResultToTest(test, result);
       test.setEndTime(new Date());
@@ -155,8 +174,8 @@ public class TestHarnessManager {
   }
 
   private void addResultToTest(Test test, TestResult result) {
-    for (String data : result.getFailureData()) {
-      test.getFailures().add(new Failure(test.getRun().getId(), data));
+    for (FailureData data : result.getFailureData()) {
+      test.getFailures().add(new Failure(data.getId(), test.getId(), test.getRun().getId(), data.getData()));
     }
   }
 

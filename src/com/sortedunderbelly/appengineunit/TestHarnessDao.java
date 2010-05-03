@@ -39,11 +39,14 @@ public interface TestHarnessDao {
 
   void updateTest(Test test);
 
-  Iterable<Failure> getFailuresForRun(long runId);
+  Iterable<Test> getTestsInProgressForRun(long runId);
+  Iterable<Test> getFailedTestsForRun(long runId);
 
   /**
    * @return {@code true} if the completion record was created, {@code false}
    * otherwise.
    */
   boolean createCompletionRecordIfNotAlreadyPresent(long runId);
+
+  Failure getFailure(long runId, String testId, String failureId);
 }

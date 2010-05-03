@@ -20,10 +20,11 @@ import com.google.apphosting.api.ApiProxy;
 import com.sortedunderbelly.appengineunit.KindTrackingDatastoreDelegate;
 
 import junit.framework.Test;
+import junit.framework.TestListener;
 
 /**
- * A {@link junit.framework.TestListener} that wipes all data written by
- * the test when the test finishes running.
+ * A {@link TestListener} that wipes all data written by the test when the
+ * test finishes running.
  *
  * @author Max Ross <max.ross@gmail.com>
  */

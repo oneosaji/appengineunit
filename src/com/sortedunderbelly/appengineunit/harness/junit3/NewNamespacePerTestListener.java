@@ -19,9 +19,11 @@ import com.google.appengine.api.NamespaceManager;
 
 import com.sortedunderbelly.appengineunit.model.Test;
 
+import org.junit.runner.notification.RunListener;
+
 /**
- * A {@link org.junit.runner.notification.RunListener} that establishes a new
- * namespace before every test and resets it after the test.
+ * A {@link RunListener} that establishes a new namespace before every test
+ * and resets it after the test.
  *
  * @author Max Ross <max.ross@gmail.com>
  */
@@ -38,8 +40,14 @@ final class NewNamespacePerTestListener extends BaseTestListener {
   }
 
   public void startTest(junit.framework.Test test) {
-    String namespace = String.format("%s_%s", gaeTest.getRun().getId(), test.toString());
+    String namespace = String.format(
+        "%s_%d", gaeTest.getRun().getId(), sanitizeTestNameForNamespace(test.toString()));
     NamespaceManager.set(namespace);
   }
-}
 
+  private int sanitizeTestNameForNamespace(String testName) {
+    return testName.hashCode();
+//    return testName.replace("(", "_").replace(")", "_").replace(".", "_");
+  }
+
+}
