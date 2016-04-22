@@ -1,0 +1,1 @@
+This project has been renamed to [cloudcover](http://code.google.com/p/cloudcover)
